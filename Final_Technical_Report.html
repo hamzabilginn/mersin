@@ -206,18 +206,6 @@
     <p>Hem MVP'nin hem de hedef mimarinin kalbini oluşturan ilişkisel veritabanı şeması aşağıdaki gibidir:</p>
 
     <div class="schema-container">
-        <!-- WBS Table -->
-        <div class="db-table">
-            <div class="db-header">
-                <span>wbs_items</span>
-                <span style="font-size: 0.8rem; opacity: 0.8;">İş Paketleri</span>
-            </div>
-            <div class="db-row"><span class="pk">zzz_code (PK)</span> <span class="type">string</span></div>
-            <div class="db-row"><span>tow_code</span> <span class="type">string</span></div>
-            <div class="db-row"><span>stow_code</span> <span class="type">string</span></div>
-            <div class="db-row"><span>sstow_code</span> <span class="type">string</span></div>
-        </div>
-
         <!-- Users Table -->
         <div class="db-table">
             <div class="db-header">
@@ -225,36 +213,40 @@
                 <span style="font-size: 0.8rem; opacity: 0.8;">Roller (RBAC)</span>
             </div>
             <div class="db-row"><span class="pk">id (PK)</span> <span class="type">integer</span></div>
-            <div class="db-row"><span>role</span> <span class="type">enum (HoM, SC, PM)</span></div>
+            <div class="db-row"><span>role</span> <span class="type">enum (tech_office, hom, sc, pm)</span></div>
             <div class="db-row"><span>name</span> <span class="type">string</span></div>
-            <div class="db-row"><span>kkk_code</span> <span class="type">string</span></div>
+            <div class="db-row"><span>email</span> <span class="type">string</span></div>
         </div>
 
-        <!-- Daily Plans Table -->
+        <!-- Tasks Table (MVP Single Table Design) -->
         <div class="db-table">
             <div class="db-header">
-                <span>daily_plans</span>
-                <span style="font-size: 0.8rem; opacity: 0.8;">T-1 Planlama</span>
+                <span>tasks</span>
+                <span style="font-size: 0.8rem; opacity: 0.8;">T-1 ve T0 Birleşik MVP Tablosu</span>
             </div>
             <div class="db-row"><span class="pk">id (PK)</span> <span class="type">integer</span></div>
-            <div class="db-row"><span class="fk">zzz_code (FK)</span> <span class="type">string</span></div>
-            <div class="db-row"><span class="fk">assigned_hom (FK)</span> <span class="type">integer</span></div>
-            <div class="db-row"><span>planned_qty</span> <span class="type">decimal</span></div>
-            <div class="db-row"><span>planned_manday</span> <span class="type">integer</span></div>
+            <div class="db-row"><span>zzz_code</span> <span class="type">string</span></div>
+            <div class="db-row"><span>tow / stow / sstow</span> <span class="type">string</span></div>
+            <div class="db-row"><span>planned_qty</span> <span class="type">decimal (T-1 Plan)</span></div>
+            <div class="db-row"><span>fact_qty</span> <span class="type">decimal (T0 Gerçek)</span></div>
+            <div class="db-row"><span>comment</span> <span class="type">text (-1 Mazereti)</span></div>
+            <div class="db-row"><span>status</span> <span class="type">enum (assigned, pending_sc, approved)</span></div>
+            <div class="db-row"><span class="fk">tech_office_id (FK)</span> <span class="type">integer</span></div>
+            <div class="db-row"><span class="fk">hom_id (FK)</span> <span class="type">integer</span></div>
+            <div class="db-row"><span class="fk">sc_id (FK)</span> <span class="type">integer</span></div>
+            <div class="db-row"><span class="fk">pm_id (FK)</span> <span class="type">integer</span></div>
         </div>
-
-        <!-- Daily Facts Table -->
+        
+        <!-- AI Messages Table -->
         <div class="db-table">
             <div class="db-header">
-                <span>daily_facts</span>
-                <span style="font-size: 0.8rem; opacity: 0.8;">T0 Gerçekleşen</span>
+                <span>ai_messages</span>
+                <span style="font-size: 0.8rem; opacity: 0.8;">AI Action Agent Logları</span>
             </div>
             <div class="db-row"><span class="pk">id (PK)</span> <span class="type">integer</span></div>
-            <div class="db-row"><span class="fk">plan_id (FK)</span> <span class="type">integer</span></div>
-            <div class="db-row"><span>fact_qty</span> <span class="type">decimal</span></div>
-            <div class="db-row"><span>fact_manday</span> <span class="type">integer</span></div>
-            <div class="db-row"><span>comment</span> <span class="type">text</span></div>
-            <div class="db-row"><span>status</span> <span class="type">enum (Pending, Approved)</span></div>
+            <div class="db-row"><span class="fk">user_id (FK)</span> <span class="type">integer</span></div>
+            <div class="db-row"><span>sender</span> <span class="type">enum (self, ai)</span></div>
+            <div class="db-row"><span>text</span> <span class="type">text</span></div>
         </div>
     </div>
 
