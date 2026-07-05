@@ -236,6 +236,44 @@
             <div class="db-row"><span>sender</span> <span class="type">enum (self, ai)</span></div>
             <div class="db-row"><span>text</span> <span class="type">text</span></div>
         </div>
+
+        <!-- Task Logs Table -->
+        <div class="db-table">
+            <div class="db-header">
+                <span>task_logs</span>
+                <span style="font-size: 0.8rem; opacity: 0.8;">Denetim İzi (Audit)</span>
+            </div>
+            <div class="db-row"><span class="pk">id (PK)</span> <span class="type">integer</span></div>
+            <div class="db-row"><span class="fk">task_id (FK)</span> <span class="type">integer</span></div>
+            <div class="db-row"><span class="fk">user_id (FK)</span> <span class="type">integer</span></div>
+            <div class="db-row"><span>old_status / new_status</span> <span class="type">string</span></div>
+            <div class="db-row"><span>comment</span> <span class="type">text</span></div>
+        </div>
+
+        <!-- Messages Table -->
+        <div class="db-table">
+            <div class="db-header">
+                <span>messages</span>
+                <span style="font-size: 0.8rem; opacity: 0.8;">Saha İletişimi</span>
+            </div>
+            <div class="db-row"><span class="pk">id (PK)</span> <span class="type">integer</span></div>
+            <div class="db-row"><span class="fk">sender_id (FK)</span> <span class="type">integer</span></div>
+            <div class="db-row"><span class="fk">receiver_id (FK)</span> <span class="type">integer</span></div>
+            <div class="db-row"><span>channel</span> <span class="type">string</span></div>
+            <div class="db-row"><span>offline_id</span> <span class="type">string (Unique)</span></div>
+        </div>
+
+        <!-- Notifications Table -->
+        <div class="db-table">
+            <div class="db-header">
+                <span>notifications</span>
+                <span style="font-size: 0.8rem; opacity: 0.8;">Bildirimler</span>
+            </div>
+            <div class="db-row"><span class="pk">id (PK)</span> <span class="type">integer</span></div>
+            <div class="db-row"><span class="fk">user_id (FK)</span> <span class="type">integer</span></div>
+            <div class="db-row"><span>title / message</span> <span class="type">string</span></div>
+            <div class="db-row"><span>is_read</span> <span class="type">boolean</span></div>
+        </div>
     </div>
 
 
@@ -249,7 +287,7 @@
         <ul class="feature-list mt-3">
             <li><strong>Backend (.NET Core 8 & C#):</strong> Milyonlarca transaction'ı asenkron yönetmek ve kurumsal ERP sistemleriyle tam entegrasyon için.</li>
             <li><strong>Veritabanı (PostgreSQL):</strong> WBS (İş Kırılım Yapısı) ağaçlarını Recursive sorgularla hızlı çözmek için.</li>
-            <li><strong>Mobil Uygulama (Flutter):</strong> Tarayıcı PWA yerine, %100 çevrimdışı (Native SQLite/Hive) ve donanım (Kamera/GPS) erişimi olan mobil çözümler.</li>
+            <li><strong>Mobil Uygulama (React Native):</strong> Tarayıcı PWA yerine, %100 çevrimdışı ve native donanım (Kamera/GPS) erişimi olan mobil çözümler.</li>
             <li><strong>Message Broker (RabbitMQ):</strong> Onay süreçlerinin (Workflow) sistemi kilitlemesini önlemek ve olay tabanlı (Event-Driven) çalışmak için.</li>
         </ul>
     </div>
