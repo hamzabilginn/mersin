@@ -191,6 +191,44 @@
             font-size: 1.05rem;
         }
 
+        /* Print Optimization for PDF Export */
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+                font-size: 12pt;
+            }
+            .container {
+                box-shadow: none;
+                padding: 0;
+                margin: 0;
+                max-width: 100%;
+            }
+            /* Prevent breaking inside these elements */
+            .callout, .db-table, .design-pattern-box, table, tr, ul, li {
+                page-break-inside: avoid;
+                break-inside: avoid;
+            }
+            /* Prevent headings from being left alone at the bottom of a page */
+            h2, h3 {
+                page-break-after: avoid;
+                break-after: avoid;
+            }
+            /* Add page breaks before main sections for cleaner PDF structure */
+            h2 {
+                page-break-before: always;
+                break-before: page;
+            }
+            h2:first-of-type {
+                page-break-before: auto;
+                break-before: auto;
+            }
+            /* Ensure background colors are printed correctly */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
     </style>
 </head>
 <body>
