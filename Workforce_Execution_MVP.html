@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workforce Execution MVP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f1f5f9; font-family: 'Inter', sans-serif; }
+        /* Mobil simülasyon çerçevesi */
+        .mobile-frame {
+            width: 375px; height: 812px;
+            background: #fff; margin: 0 auto;
+            border-radius: 40px; border: 12px solid #1e293b;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow-y: auto; position: relative;
+        }
+        .offline-banner { background: #ef4444; color: white; text-align: center; padding: 5px; font-size: 12px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div id="app" class="h-screen flex flex-col">
+        <!-- HEADER -->
+        <header class="bg-slate-900 text-white p-4 shadow-md flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-industry text-orange-500 text-xl"></i>
+                <h1 class="text-xl font-bold">Workforce Platform MVP</h1>
+            </div>
+            <div v-if="role" class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm text-slate-300">İnternet:</span>
+                    <button @click="toggleOffline" :class="isOffline ? 'bg-red-500' : 'bg-green-500'" class="px-3 py-1 rounded text-xs font-bold transition">
+                        {{ isOffline ? 'OFFLINE (Sinyal Yok)' : 'ONLINE' }}
+                    </button>
+                </div>
+                <div class="border-l border-slate-700 pl-4">
+                    <span class="text-orange-400 font-semibold mr-3">{{ roleDisplay }}</span>
+                    <button @click="logout" class="text-sm bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded">Çıkış</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="flex-1 overflow-auto p-6">
+            
+            <!-- LOGIN SCREEN -->
+            <div v-if="!role" class="max-w-md mx-auto mt-20 bg-white p-8 rounded-xl shadow-lg border border-slate-200">
+                <h2 class="text-2xl font-bold text-center text-slate-800 mb-6">Sisteme Giriş</h2>
+                <p class="text-sm text-slate-500 mb-6 text-center">Deneyimlemek istediğiniz rolü seçin:</p>
+                <div class="space-y-4">
+                    <button @click="login('tech')" class="w-full p-4 border border-blue-200 bg-blue-50 hover:bg-blue-100 rounded-lg flex items-center gap-4 transition">
+                        <div class="bg-blue-500 text-white p-3 rounded-full"><i class="fa-solid fa-laptop-code"></i></div>
+                        <div class="text-left"><p class="font-bold text-slate-800">Technical Office</p><p class="text-xs text-slate-500">Plan Oluştur (T-1)</p></div>
+                    </button>
+                    <button @click="login('hom')" class="w-full p-4 border border-orange-200 bg-orange-50 hover:bg-orange-100 rounded-lg flex items-center gap-4 transition">
+                        <div class="bg-orange-500 text-white p-3 rounded-full"><i class="fa-solid fa-hard-hat"></i></div>
+                        <div class="text-left"><p class="font-bold text-slate-800">Head of Master (Mobil)</p><p class="text-xs text-slate-500">Sahadan Veri Gir (T0)</p></div>
+                    </button>
+                    <button @click="login('sc')" class="w-full p-4 border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 rounded-lg flex items-center gap-4 transition">
+                        <div class="bg-emerald-500 text-white p-3 rounded-full"><i class="fa-solid fa-clipboard-check"></i></div>
+                        <div class="text-left"><p class="font-bold text-slate-800">Site Chief / PM</p><p class="text-xs text-slate-500">Rapor ve Onay</p></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- TECH OFFICE PANEL -->
+            <div v-if="role === 'tech'" class="max-w-6xl mx-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">T-1 Planlama Ekranı</h2>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-6">
+                    <div class="col-span-1 bg-white p-6 rounded-xl shadow border border-slate-200">
+                        <h3 class="font-bold text-slate-700 mb-4 border-b pb-2">Yeni Günlük Plan Ata</h3>
+                        <form @submit.prevent="createPlan" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">Tarih</label>
+                                <input type="date" v-model="newPlan.date" required class="w-full p-2 border rounded">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">Lokasyon (KKK)</label>
+                                <select v-model="newPlan.kkk" required class="w-full p-2 border rounded">
+                                    <option value="30AAA">30AAA</option><option value="30DDD">30DDD</option><option value="30FFF">30FFF</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">WBS / ZZZ Kodu Seçimi</label>
+                                <select v-model="newPlan.zzz_code" required class="w-full p-2 border rounded text-sm">
+                                    <option v-for="w in wbsData" :value="w.zzz">{{ w.zzz }} - {{ w.tow }} / {{ w.stow }} / {{ w.sstow }} ({{ w.unit }})</option>
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">Miktar (Plan)</label>
+                                    <input type="number" step="0.01" v-model="newPlan.planned_qty" required class="w-full p-2 border rounded">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-500 mb-1">Adam/Gün</label>
+                                    <input type="number" v-model="newPlan.planned_manday" required class="w-full p-2 border rounded">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">Atanacak Head of Master</label>
+                                <select v-model="newPlan.hom" required class="w-full p-2 border rounded">
+                                    <option value="30DDD-hom@icn.com">30DDD-hom@icn.com</option>
+                                    <option value="30AAA-hom@icn.com">30AAA-hom@icn.com</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 rounded transition mt-4">
+                                Planı Kaydet ve Ata
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="col-span-2 bg-white p-6 rounded-xl shadow border border-slate-200 overflow-x-auto">
+                        <h3 class="font-bold text-slate-700 mb-4 border-b pb-2">Aktif Planlar (Tüm Sistem)</h3>
+                        <table class="w-full text-sm text-left">
+                            <thead class="bg-slate-100 text-slate-600">
+                                <tr>
+                                    <th class="p-2">ID</th>
+                                    <th class="p-2">Tarih</th>
+                                    <th class="p-2">KKK</th>
+                                    <th class="p-2">ZZZ</th>
+                                    <th class="p-2 text-right">Plan Miktar</th>
+                                    <th class="p-2">HoM</th>
+                                    <th class="p-2 text-center">Durum</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="p in plans" :key="p.id" class="border-b">
+                                    <td class="p-2 font-mono text-xs text-slate-400">#{{ p.id }}</td>
+                                    <td class="p-2">{{ p.date }}</td>
+                                    <td class="p-2">{{ p.kkk }}</td>
+                                    <td class="p-2 font-bold">{{ p.zzz_code }}</td>
+                                    <td class="p-2 text-right">{{ p.planned_qty }} {{ getUnit(p.zzz_code) }}</td>
+                                    <td class="p-2">{{ p.hom }}</td>
+                                    <td class="p-2 text-center">
+                                        <span class="px-2 py-1 text-[10px] font-bold rounded-full" :class="statusColor(p.status)">
+                                            {{ p.status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr v-if="plans.length === 0"><td colspan="7" class="text-center p-4 text-slate-500">Henüz plan oluşturulmadı.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- HEAD OF MASTER PANEL (MOBILE SIMULATION) -->
+            <div v-if="role === 'hom'">
+                <p class="text-center text-slate-500 text-sm mb-4"><i class="fa-solid fa-mobile-screen"></i> Mobil Saha Uygulaması Simülasyonu</p>
+                
+                <div class="mobile-frame bg-slate-50">
+                    <div v-if="isOffline" class="offline-banner">
+                        <i class="fa-solid fa-triangle-exclamation"></i> OFFLINE (Sinyal Yok) - Veriler Lokal DB'de
+                    </div>
+                    
+                    <div class="p-4 bg-orange-500 text-white">
+                        <h3 class="font-bold">HoM İş Listesi</h3>
+                        <p class="text-xs opacity-80">{{ new Date().toLocaleDateString() }} - Şantiye Sahası</p>
+                    </div>
+
+                    <div class="p-4 space-y-4">
+                        <div v-if="pendingSync.length > 0" class="bg-amber-100 p-3 rounded-lg border border-amber-200">
+                            <p class="text-xs text-amber-700 font-bold"><i class="fa-solid fa-cloud-arrow-up"></i> İnternet Bekleyen Veri: {{ pendingSync.length }} kayıt</p>
+                            <p class="text-[10px] text-amber-600">İnternet bağlantısı geldiğinde otomatik senkronize edilecektir.</p>
+                        </div>
+
+                        <div v-for="p in homPlans" :key="p.id" class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 relative">
+                            <span class="absolute top-3 right-3 text-[9px] font-bold px-2 py-1 bg-blue-100 text-blue-700 rounded">{{ p.kkk }}</span>
+                            <p class="text-xs text-slate-400 font-mono mb-1">ZZZ: {{ p.zzz_code }}</p>
+                            <p class="text-sm font-bold text-slate-800">{{ getTow(p.zzz_code) }}</p>
+                            <div class="bg-slate-50 p-2 rounded mt-2 text-xs flex justify-between">
+                                <span class="text-slate-500">Hedef:</span>
+                                <span class="font-bold text-slate-800">{{ p.planned_qty }} {{ getUnit(p.zzz_code) }}</span>
+                            </div>
+                            
+                            <button @click="openFactModal(p)" class="w-full mt-3 bg-slate-900 text-white text-sm py-2 rounded-lg hover:bg-slate-800 transition">
+                                Veri Gir (T0) <i class="fa-solid fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+
+                        <div v-if="homPlans.length === 0" class="text-center p-8 opacity-50">
+                            <i class="fa-solid fa-box-open text-4xl mb-2"></i>
+                            <p class="text-sm">Bekleyen görev yok.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SITE CHIEF / PM PANEL -->
+            <div v-if="role === 'sc'" class="max-w-6xl mx-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">Management Dashboard</h2>
+                    <div class="bg-emerald-100 text-emerald-800 px-4 py-2 rounded font-bold text-sm">
+                        <i class="fa-solid fa-chart-line"></i> Power BI Gerçek Zamanlı Rapor Önizlemesi
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow border border-slate-200 overflow-hidden mb-8">
+                    <div class="bg-slate-50 p-4 border-b border-slate-200">
+                        <h3 class="font-bold text-slate-700">Onay Bekleyen İşler (Pending)</h3>
+                    </div>
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-white text-slate-500 text-xs uppercase">
+                            <tr>
+                                <th class="p-3">ZZZ / Lokasyon</th>
+                                <th class="p-3">Plan (Hedef)</th>
+                                <th class="p-3 bg-orange-50">Fact (Gerçekleşen)</th>
+                                <th class="p-3 text-center">Durum / Açıklama</th>
+                                <th class="p-3 text-right">Aksiyon</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="p in pendingPlans" :key="p.id" class="border-t hover:bg-slate-50 transition">
+                                <td class="p-3">
+                                    <p class="font-bold text-slate-800">{{ p.zzz_code }}</p>
+                                    <p class="text-xs text-slate-400">{{ p.kkk }}</p>
+                                </td>
+                                <td class="p-3">
+                                    <span class="bg-slate-100 px-2 py-1 rounded">{{ p.planned_qty }} {{ getUnit(p.zzz_code) }}</span>
+                                </td>
+                                <td class="p-3 bg-orange-50/50">
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold" :class="p.fact_qty == -1 ? 'text-red-500' : 'text-slate-800'">
+                                            {{ p.fact_qty == -1 ? 'BAŞLAMADI' : p.fact_qty + ' ' + getUnit(p.zzz_code) }}
+                                        </span>
+                                    </div>
+                                    <p class="text-[10px] text-slate-500 mt-1">Crew: {{ p.crew_type }} | Mesai: {{ p.overtime }}s</p>
+                                </td>
+                                <td class="p-3">
+                                    <div v-if="p.comment" class="bg-red-50 text-red-700 border border-red-200 p-2 rounded text-xs">
+                                        <strong>Not:</strong> {{ p.comment }}
+                                    </div>
+                                    <div v-else class="text-slate-400 text-xs text-center">-</div>
+                                </td>
+                                <td class="p-3 text-right space-x-2">
+                                    <button @click="approve(p.id)" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1 rounded text-xs font-bold transition">Onayla</button>
+                                </td>
+                            </tr>
+                            <tr v-if="pendingPlans.length === 0"><td colspan="5" class="text-center p-6 text-slate-500">Onay bekleyen kayıt yok.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="bg-white rounded-xl shadow border border-slate-200 overflow-hidden">
+                    <div class="bg-slate-50 p-4 border-b border-slate-200">
+                        <h3 class="font-bold text-slate-700">Verimlilik Analizi (Approved Records)</h3>
+                    </div>
+                    <table class="w-full text-sm text-left">
+                        <thead class="bg-slate-800 text-white text-xs uppercase">
+                            <tr>
+                                <th class="p-3">ZZZ / WBS</th>
+                                <th class="p-3 text-right">Planlanan</th>
+                                <th class="p-3 text-right text-emerald-400">Gerçekleşen</th>
+                                <th class="p-3 text-center text-orange-400">Verim (Efficiency)</th>
+                                <th class="p-3">Onaylayan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="p in approvedPlans" :key="p.id" class="border-t hover:bg-slate-50">
+                                <td class="p-3"><p class="font-bold">{{ p.zzz_code }}</p><p class="text-xs text-slate-400">{{ getTow(p.zzz_code) }}</p></td>
+                                <td class="p-3 text-right">{{ p.planned_qty }}</td>
+                                <td class="p-3 text-right font-bold">{{ p.fact_qty == -1 ? 0 : p.fact_qty }}</td>
+                                <td class="p-3 text-center">
+                                    <div class="w-full bg-slate-200 rounded-full h-4 relative overflow-hidden">
+                                        <div class="h-4 absolute left-0 top-0 transition-all duration-500" 
+                                             :class="getEfficiency(p) >= 100 ? 'bg-emerald-500' : (getEfficiency(p) > 50 ? 'bg-blue-500' : 'bg-red-500')" 
+                                             :style="'width: ' + Math.min(getEfficiency(p), 100) + '%'"></div>
+                                        <span class="absolute inset-0 text-[10px] font-bold text-slate-800 flex items-center justify-center mix-blend-overlay">{{ getEfficiency(p) }}%</span>
+                                    </div>
+                                </td>
+                                <td class="p-3 text-xs text-slate-500"><i class="fa-solid fa-check-double text-emerald-500 mr-1"></i> Site Chief</td>
+                            </tr>
+                            <tr v-if="approvedPlans.length === 0"><td colspan="5" class="text-center p-6 text-slate-500">Raporlanacak onaylanmış kayıt yok.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- FACT ENTRY MODAL (HoM) -->
+        <div v-if="activeFactModal" class="fixed inset-0 bg-slate-900/80 flex items-center justify-center z-50">
+            <div class="bg-white w-[350px] rounded-2xl shadow-2xl overflow-hidden animate-fade-in-up">
+                <div class="bg-slate-100 p-4 border-b flex justify-between items-center">
+                    <h3 class="font-bold text-slate-800">Fact Girişi (T0)</h3>
+                    <button @click="activeFactModal = null" class="text-slate-400 hover:text-slate-700"><i class="fa-solid fa-xmark text-xl"></i></button>
+                </div>
+                <div class="p-5 space-y-4">
+                    <div class="bg-blue-50 p-3 rounded text-sm text-blue-800 border border-blue-100">
+                        <span class="font-bold">Hedef:</span> {{ activeFactModal.planned_qty }} {{ getUnit(activeFactModal.zzz_code) }}
+                    </div>
+                    
+                    <form @submit.prevent="submitFact">
+                        <div class="mb-3">
+                            <label class="block text-xs font-bold text-slate-500 mb-1">Ekip (Crew Type)</label>
+                            <select v-model="factForm.crew_type" required class="w-full p-2 border rounded bg-slate-50 text-sm">
+                                <option value="Rebar Fixer">Rebar Fixer</option><option value="Welder">Welder</option><option value="General Labor">General Labor</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">Fact Qty</label>
+                                <input type="number" step="0.01" v-model="factForm.fact_qty" required class="w-full p-2 border rounded font-bold" :class="factForm.fact_qty == -1 ? 'border-red-500 text-red-600 bg-red-50' : ''">
+                                <p class="text-[9px] text-slate-400 mt-1">İş olmadıysa -1 girin</p>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 mb-1">Overtime (Saat)</label>
+                                <input type="number" step="0.5" v-model="factForm.overtime" required class="w-full p-2 border rounded">
+                            </div>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-xs font-bold mb-1" :class="factForm.fact_qty == -1 ? 'text-red-500' : 'text-slate-500'">
+                                Açıklama (Comment) <span v-if="factForm.fact_qty == -1" class="text-red-500">* ZORUNLU</span>
+                            </label>
+                            <textarea v-model="factForm.comment" :required="factForm.fact_qty == -1" rows="2" class="w-full p-2 border rounded text-sm placeholder-slate-300" :class="factForm.fact_qty == -1 && !factForm.comment ? 'border-red-500 bg-red-50' : ''" placeholder="İş yapılamadıysa nedeni..."></textarea>
+                        </div>
+                        
+                        <!-- AI Asistan Demo Kutusu -->
+                        <div class="bg-gradient-to-r from-purple-100 to-fuchsia-100 p-3 rounded-lg border border-purple-200 mb-4 flex items-start gap-3">
+                            <i class="fa-solid fa-robot text-purple-600 mt-1"></i>
+                            <div>
+                                <p class="text-[10px] font-bold text-purple-800">AI Asistan Devrede</p>
+                                <p class="text-[10px] text-purple-700 leading-tight mt-1">Saha şartlarındaysanız mikrofon butonuna basarak <em>"2 ton demir bağlandı, 2 saat mesai yapıldı"</em> diyebilirsiniz.</p>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-lg shadow-md transition flex justify-center items-center gap-2">
+                            <i class="fa-solid fa-cloud-arrow-up"></i> 
+                            <span v-if="!isOffline">Onaya Gönder</span>
+                            <span v-else>Lokal DB'ye Kaydet (Offline)</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            data() {
+                return {
+                    role: null,
+                    isOffline: false,
+                    wbsData: [
+                        { zzz: '60114402', tow: 'TOW-02', stow: 'STOW-23', sstow: 'SSTOW-77', unit: 't' },
+                        { zzz: '60100101', tow: 'TOW-01', stow: 'STOW-01', sstow: 'SSTOW-01', unit: 'm3' },
+                        { zzz: '60155555', tow: 'TOW-17', stow: 'STOW-155', sstow: 'SSTOW-455', unit: 'm2' }
+                    ],
+                    plans: [],
+                    pendingSync: [],
+                    newPlan: { date: new Date().toISOString().split('T')[0], kkk: '30DDD', zzz_code: '60114402', planned_qty: '', planned_manday: '', hom: '30DDD-hom@icn.com' },
+                    activeFactModal: null,
+                    factForm: { fact_qty: '', overtime: 0, crew_type: 'Rebar Fixer', comment: '' }
+                }
+            },
+            mounted() {
+                const saved = localStorage.getItem('icn_plans');
+                if(saved) this.plans = JSON.parse(saved);
+                
+                const savedPending = localStorage.getItem('icn_pending');
+                if(savedPending) this.pendingSync = JSON.parse(savedPending);
+            },
+            computed: {
+                roleDisplay() {
+                    if(this.role === 'tech') return 'Technical Office';
+                    if(this.role === 'hom') return 'Head of Master';
+                    if(this.role === 'sc') return 'Site Chief';
+                    return '';
+                },
+                homPlans() {
+                    return this.plans.filter(p => p.status === 'ASSIGNED');
+                },
+                pendingPlans() {
+                    return this.plans.filter(p => p.status === 'PENDING_SC');
+                },
+                approvedPlans() {
+                    return this.plans.filter(p => p.status === 'APPROVED');
+                }
+            },
+            methods: {
+                saveData() {
+                    localStorage.setItem('icn_plans', JSON.stringify(this.plans));
+                    localStorage.setItem('icn_pending', JSON.stringify(this.pendingSync));
+                },
+                login(r) { this.role = r; },
+                logout() { this.role = null; },
+                toggleOffline() { 
+                    this.isOffline = !this.isOffline; 
+                    if(!this.isOffline && this.pendingSync.length > 0) {
+                        // İnternet geldi, senkronize et
+                        setTimeout(() => {
+                            this.pendingSync.forEach(syncItem => {
+                                const index = this.plans.findIndex(p => p.id === syncItem.id);
+                                if(index > -1) {
+                                    this.plans[index] = syncItem;
+                                }
+                            });
+                            this.pendingSync = [];
+                            this.saveData();
+                            alert("Offline kayıtlar sunucuya senkronize edildi!");
+                        }, 800);
+                    }
+                },
+                getUnit(zzz) { return this.wbsData.find(w => w.zzz === zzz)?.unit || '-'; },
+                getTow(zzz) { 
+                    let w = this.wbsData.find(w => w.zzz === zzz); 
+                    return w ? `${w.tow} / ${w.sstow}` : ''; 
+                },
+                statusColor(status) {
+                    if(status==='ASSIGNED') return 'bg-blue-100 text-blue-800 border border-blue-200';
+                    if(status==='PENDING_SC') return 'bg-orange-100 text-orange-800 border border-orange-200';
+                    if(status==='APPROVED') return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
+                    return 'bg-slate-100 text-slate-800';
+                },
+                createPlan() {
+                    const plan = {
+                        id: Math.floor(Math.random() * 9000) + 1000,
+                        ...this.newPlan,
+                        status: 'ASSIGNED'
+                    };
+                    this.plans.push(plan);
+                    this.saveData();
+                    this.newPlan.planned_qty = ''; this.newPlan.planned_manday = '';
+                },
+                openFactModal(plan) {
+                    this.activeFactModal = plan;
+                    this.factForm = { fact_qty: '', overtime: 0, crew_type: 'Rebar Fixer', comment: '' };
+                },
+                submitFact() {
+                    const updatedPlan = {
+                        ...this.activeFactModal,
+                        fact_qty: this.factForm.fact_qty,
+                        overtime: this.factForm.overtime,
+                        crew_type: this.factForm.crew_type,
+                        comment: this.factForm.comment,
+                        status: 'PENDING_SC'
+                    };
+
+                    if(this.isOffline) {
+                        // Local pending kuyruğuna yaz, ana listeden gizle
+                        this.pendingSync.push(updatedPlan);
+                        // Ekranda (mobil appte) görünüm için listeden çıkarıyoruz ama sunucuda hala ASSIGNED
+                        const index = this.plans.findIndex(p => p.id === updatedPlan.id);
+                        if(index > -1) this.plans.splice(index, 1);
+                    } else {
+                        // Online: Doğrudan API/DB güncelle (plans dizisini güncelle)
+                        const index = this.plans.findIndex(p => p.id === updatedPlan.id);
+                        if(index > -1) this.plans[index] = updatedPlan;
+                    }
+
+                    this.saveData();
+                    this.activeFactModal = null;
+                },
+                approve(id) {
+                    const index = this.plans.findIndex(p => p.id === id);
+                    if(index > -1) {
+                        this.plans[index].status = 'APPROVED';
+                        this.saveData();
+                    }
+                },
+                getEfficiency(plan) {
+                    if(plan.fact_qty == -1 || plan.planned_qty == 0) return 0;
+                    return Math.round((plan.fact_qty / plan.planned_qty) * 100);
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
