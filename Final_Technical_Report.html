@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Workforce Execution Platform - Teknik Mimari Raporu</title>
+    <title>Workforce Execution Platform - Kapsamlı Teknik Mimari Raporu</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
 
@@ -59,6 +59,7 @@
         h3 {
             color: var(--primary);
             margin-top: 25px;
+            font-size: 1.2rem;
         }
 
         .subtitle {
@@ -175,6 +176,21 @@
             font-weight: bold;
         }
 
+        .design-pattern-box {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .design-pattern-box strong {
+            color: var(--primary);
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.05rem;
+        }
+
     </style>
 </head>
 <body>
@@ -182,61 +198,136 @@
 <div class="container">
     <header>
         <h1>Workforce Execution Platform</h1>
-        <div class="subtitle">Teknik Mimari Raporu: MVP (Prototip) vs Hedef Kurumsal Mimari</div>
+        <div class="subtitle">Kapsamlı Teknik Mimari Raporu: Yerel MVP ve Hedef Kurumsal Mimari Karşılaştırması</div>
         <p style="margin-top: 10px;"><strong>Hazırlayan:</strong> Mustafa Hazar Bilgin</p>
     </header>
 
     <div class="callout">
-        <strong>Yönetici Özeti:</strong><br>
-        Bu doküman, ICN Vaka Çalışması kapsamında şantiye süreçlerini (T-1 Planlama, T0 Gerçekleşen, ZZZ Kodları) dijitalleştirmek için geliştirilen yazılımın mimari yapısını açıklamaktadır. Rapor iki bölümden oluşmaktadır: <strong>1)</strong> Fikirleri hızla sahada kanıtlamak için kodlanan <strong>Çevik MVP (Proof of Concept)</strong> projesi. <strong>2)</strong> Projenin üretim (Production) ortamında kullanılacağı <strong>Hedef Kurumsal Mimari</strong>.
+        <strong>Mülakat & Case Study Bilgilendirmesi (Yönetici Özeti)</strong><br>
+        Bu doküman, geliştirilen <strong>Laravel & Vue SPA</strong> kod tabanının tüm mühendislik detaylarını (Offline-First senkronizasyon, AI entegrasyonu, Tasarım Desenleri) ve üretim (Production) ortamı için tasarlanan ölçeklenebilir <strong>Hedef Kurumsal Mimari</strong> vizyonunu kapsamaktadır.
     </div>
 
-    <!-- BÖLÜM 1: MVP -->
-    <h2>BÖLÜM 1: Geliştirilen MVP Projesi (Proof of Concept)</h2>
-    <p>Canlı demosu sunulan bu versiyon, karmaşık iş kurallarını en hızlı ve etkileşimli şekilde test etmek amacıyla geliştirilmiştir.</p>
+    <!-- ========================================================== -->
+    <!-- BÖLÜM 1: MVP TEKNOLOJİ YIĞINI VE DESENLERİ (MEVCUT DURUM) -->
+    <!-- ========================================================== -->
+    <h2>BÖLÜM 1: Geliştirilen Canlı MVP Projesi (Proof of Concept)</h2>
+    <p>Bu proje, yüksek güvenlikli ve dış dünyaya kapalı (Air-Gapped / Intranet) şantiye sahalarında, T-1 (Plan) ve T0 (Gerçekleşme) iş akışı onay mekanizmalarını otomatikleştirmek amacıyla simüle edilmiş Offline-First bir uygulamadır.</p>
+
+    <h3>1.1. Teknoloji Yığını (Tech Stack)</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Katman</th>
+                <th>Teknoloji</th>
+                <th>Seçim Gerekçesi</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Backend</strong></td>
+                <td>Laravel 11 (PHP 8.3)</td>
+                <td>Modüler MVC yapısı, güçlü Migration yetenekleri, dahili Event/Listener sistemi ve kurumsal standartlara uygunluğu.</td>
+            </tr>
+            <tr>
+                <td><strong>Frontend</strong></td>
+                <td>Vue 3 SPA (Single Page)</td>
+                <td>İstemci tarafında sayfa geçişleri sağlayarak uygulamanın internet koptuğunda dahi çalışabilmesi.</td>
+            </tr>
+            <tr>
+                <td><strong>Rota & Durum</strong></td>
+                <td>Vue Router + Pinia</td>
+                <td>Sunucu bağımsız çevrimdışı sayfa yönlendirmesi yapmak ve reaktif durum (state) yönetimini merkezi hale getirmek.</td>
+            </tr>
+            <tr>
+                <td><strong>Stil & Tasarım</strong></td>
+                <td>TailwindCSS (v4)</td>
+                <td>Modern, hızlı ve son derece özelleştirilebilir arayüz öğeleri üretmek.</td>
+            </tr>
+            <tr>
+                <td><strong>Yerel Veri (Cache)</strong></td>
+                <td>IndexedDB (Native API)</td>
+                <td>Çevrimdışı durumda görevlerin, mesajların ve giden kuyruğunun (sync_queue) yüksek kapasiteli depolanması.</td>
+            </tr>
+            <tr>
+                <td><strong>Veritabanı</strong></td>
+                <td>SQLite (Lokal)</td>
+                <td>Şantiye içi intranet sunucularında veya yerel testlerde sıfır kurulum gerektiren, dosya tabanlı ilişkisel yapı.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h3>1.2. Yazılım Mimarlık Desenleri (Design Patterns)</h3>
     
-    <div class="callout-success callout">
-        <strong>MVP'ye Eklenen İleri Düzey Yetenekler (Yeni Eklemeler):</strong>
-        <ul class="feature-list mt-3">
-            <li><strong>AI Action Agent (Yapay Zeka Ajanı):</strong> Yapay zeka sadece sorulara cevap vermekle kalmaz. Sahadaki personel sesli veya yazılı olarak "İşimi bitir" veya "Görevleri onayla" dediğinde <strong>sistemde otomatik olarak görevi tamamlar veya onaylar.</strong></li>
-            <li><strong>Offline-First & IndexedDB:</strong> İnternet koptuğunda sistem IndexedDB üzerinden lokal çalışmaya devam eder. Görevler ve mesajlar "Giden Kutusuna" atılır. İnternet geldiğinde sunucuya (Senkronizasyon) gönderilir.</li>
-            <li><strong>Saha İletişimi (Infinite Scroll):</strong> Şantiye içi genel kanallar ve birebir özel mesajlaşma modülleri yapılmış, sonsuz kaydırma (Infinite scroll) ile performans optimize edilmiştir.</li>
-            <li><strong>Kritik "-1" Kuralı:</strong> HoM (Saha elemanı) işe başlayamadığında Fact Qty alanına "-1" girmeye zorlanır ve mazeret belirtmeden görevi kapatması engellenir.</li>
-            <li><strong>RBAC İş Akışı:</strong> Tech Office -> HoM -> SC (Şantiye Şefi) -> PM (Proje Müdürü) şeklinde hiyerarşik onay akışı kurulmuştur.</li>
+    <div class="design-pattern-box">
+        <strong>Service Layer Pattern (İş Mantığı Katmanı)</strong>
+        Veritabanı yazma ve iş kuralları denetleme mantığı kontrolcülerden (Controllers) arındırılarak <code>App\Services\TaskService</code> içerisine taşınmıştır. Kontrolcüler sadece HTTP isteklerini almak ve API (JSON) kaynaklarını döndürmekle yükümlüdür.
+    </div>
+
+    <div class="design-pattern-box">
+        <strong>Event-Driven Architecture (Olay Odaklı Mimari)</strong>
+        Görevlerin durumu değiştiğinde <code>TaskStatusChanged</code> adında bir event tetiklenir. Bu olay, sistemin diğer süreçlerinden tamamen soyutlanmış iki dinleyici (Listener) tarafından işlenir:
+        <ul class="feature-list mt-2">
+            <li><strong>WriteTaskAuditLog:</strong> Görevin geçmiş durumlarını, değişiklik zamanını ve yorumlarını <code>task_logs</code> tablosuna bağımsız bir işlem olarak yazar (Denetim İzi / Audit Trail).</li>
+            <li><strong>SendTaskNotification:</strong> Değişikliği yapan ve etkilenen rollerin (HoM, SC, PM) durumuna göre gerçek zamanlı bildirim kayıtları üretir.</li>
         </ul>
     </div>
 
-    <h3>MVP Teknolojileri ve Veritabanı</h3>
-    <p>Hızlı entegrasyon için <strong>Vue.js 3 PWA</strong> ve <strong>Laravel 11 (PHP)</strong> kullanılmıştır. Veritabanı olarak dosya tabanlı <strong>SQLite</strong> tercih edilerek sunucu bağımsız kurulum hedeflenmiştir. Çevik (Agile) geliştirme kapsamında T-1 (Plan) ve T0 (Gerçekleşen) verileri tek bir <strong>tasks</strong> tablosunda birleştirilmiştir.</p>
+    <div class="design-pattern-box">
+        <strong>Data Transfer & Validation (Form Requests & Resources)</strong>
+        <ul class="feature-list mt-2">
+            <li><strong>Form Requests:</strong> <code>StoreTaskRequest</code> ve <code>UpdateTaskStatusRequest</code> ile veriler denetleyiciye ulaşmadan önce Controller dışında doğrulanır ve yetki kontrolünden geçer.</li>
+            <li><strong>API Resources:</strong> <code>TaskResource</code>, <code>UserResource</code> ve <code>MessageResource</code> ile veritabanı modellerinin dışa açılan JSON çıktı yapıları güvenli şekilde kapsüllenir (Encapsulation).</li>
+        </ul>
+    </div>
+
+    <h3>1.3. İleri Düzey Yetenekler ve Entegrasyonlar</h3>
+
+    <div class="callout-success callout">
+        <strong>1. Çevrimdışı Çalışma (Offline-First) ve Eşitleme Akışı:</strong><br>
+        Tarayıcının <code>navigator.onLine</code> özelliği dinlenerek internet yokken tüm istekler <code>SyncManager</code> tarafından IndexedDB içindeki <code>sync_queue</code> (Giden Kutusu) tablosuna kaydedilir. Ön yüz <strong>Optimistic UI (İyimser Ön Yüz)</strong> ile anında güncellenir. İnternet geldiğinde işlemler FIFO (İlk Giren İlk Çıkar) kuralıyla arka planda Laravel API'ye post edilir.
+    </div>
+
+    <div class="callout-success callout">
+        <strong>2. Yapay Zeka Ajanı (AI Action Agent) ve Bağlam Yönetimi:</strong><br>
+        AI asistanına sorulan sorularda, arka planda o anki veritabanından aktif ekip ve görev listesi (Prompt Injection) olarak modele verilir. Ayrıca <strong>Action Agent</strong> yeteneği sayesinde sahadaki bir usta <em>"Yarın ustaya 60114402 kodlu işi ata"</em> veya <em>"Bekleyen işleri onayla"</em> dediğinde, yapay zeka sadece cevap vermekle kalmaz, <strong>sisteme müdahale ederek görevi atar veya onaylar.</strong> İnternet koptuğunda ise kodlanmış <em>Rules-based Offline AI Engine</em> devreye girer.
+    </div>
+
+    <div class="callout-success callout">
+        <strong>3. Gelişmiş Saha İletişimi ve Kalıcılık:</strong><br>
+        Saha çalışanları #general kanalının yanı sıra birbirleriyle birebir özel mesajlaşabilir (DM). Performans optimizasyonu için tüm sohbet geçmişi <strong>Sonsuz Kaydırma (Infinite Scroll Pagination)</strong> ile 20'şerli paketler halinde yüklenir.
+    </div>
+
+
+    <h3>1.4. MVP (Prototip) Veritabanı Şeması</h3>
+    <p>Hızlı ve çevik (Agile) bir prototip için T-1 ve T0 aşamaları birleştirilmiş ve aşağıdaki kritik tablolar oluşturulmuştur:</p>
 
     <div class="schema-container">
-        <!-- Tasks Table (MVP) -->
+        <!-- Users Table -->
+        <div class="db-table">
+            <div class="db-header">
+                <span>users</span>
+                <span style="font-size: 0.8rem; opacity: 0.8;">Roller (RBAC)</span>
+            </div>
+            <div class="db-row"><span class="pk">id (PK)</span> <span class="type">integer</span></div>
+            <div class="db-row"><span>role</span> <span class="type">enum (tech_office, hom, sc, pm)</span></div>
+            <div class="db-row"><span>name</span> <span class="type">string</span></div>
+            <div class="db-row"><span>email</span> <span class="type">string</span></div>
+        </div>
+
+        <!-- Tasks Table (MVP Single Table Design) -->
         <div class="db-table">
             <div class="db-header">
                 <span>tasks</span>
-                <span style="font-size: 0.8rem; opacity: 0.8;">MVP Tablosu</span>
+                <span style="font-size: 0.8rem; opacity: 0.8;">MVP Ana Görev Tablosu</span>
             </div>
             <div class="db-row"><span class="pk">id (PK)</span> <span class="type">integer</span></div>
             <div class="db-row"><span>zzz_code</span> <span class="type">string</span></div>
             <div class="db-row"><span>planned_qty</span> <span class="type">decimal (T-1)</span></div>
             <div class="db-row"><span>fact_qty</span> <span class="type">decimal (T0)</span></div>
-            <div class="db-row"><span>comment</span> <span class="type">text (-1 Mazeret)</span></div>
             <div class="db-row"><span>status</span> <span class="type">enum (assigned, pending_sc, approved)</span></div>
             <div class="db-row"><span class="fk">hom_id (FK)</span> <span class="type">integer</span></div>
         </div>
-
-        <!-- AI Messages Table -->
-        <div class="db-table">
-            <div class="db-header">
-                <span>ai_messages</span>
-                <span style="font-size: 0.8rem; opacity: 0.8;">AI Logları</span>
-            </div>
-            <div class="db-row"><span class="pk">id (PK)</span> <span class="type">integer</span></div>
-            <div class="db-row"><span class="fk">user_id (FK)</span> <span class="type">integer</span></div>
-            <div class="db-row"><span>sender</span> <span class="type">enum (self, ai)</span></div>
-            <div class="db-row"><span>text</span> <span class="type">text</span></div>
-        </div>
-
+        
         <!-- Task Logs Table -->
         <div class="db-table">
             <div class="db-header">
@@ -259,7 +350,6 @@
             <div class="db-row"><span class="pk">id (PK)</span> <span class="type">integer</span></div>
             <div class="db-row"><span class="fk">sender_id (FK)</span> <span class="type">integer</span></div>
             <div class="db-row"><span class="fk">receiver_id (FK)</span> <span class="type">integer</span></div>
-            <div class="db-row"><span>channel</span> <span class="type">string</span></div>
             <div class="db-row"><span>offline_id</span> <span class="type">string (Unique)</span></div>
         </div>
 
@@ -272,35 +362,50 @@
             <div class="db-row"><span class="pk">id (PK)</span> <span class="type">integer</span></div>
             <div class="db-row"><span class="fk">user_id (FK)</span> <span class="type">integer</span></div>
             <div class="db-row"><span>title / message</span> <span class="type">string</span></div>
-            <div class="db-row"><span>is_read</span> <span class="type">boolean</span></div>
+        </div>
+
+        <!-- AI Messages Table -->
+        <div class="db-table">
+            <div class="db-header">
+                <span>ai_messages</span>
+                <span style="font-size: 0.8rem; opacity: 0.8;">AI Logları</span>
+            </div>
+            <div class="db-row"><span class="pk">id (PK)</span> <span class="type">integer</span></div>
+            <div class="db-row"><span class="fk">user_id (FK)</span> <span class="type">integer</span></div>
+            <div class="db-row"><span>sender</span> <span class="type">enum (self, ai)</span></div>
+            <div class="db-row"><span>text</span> <span class="type">text</span></div>
         </div>
     </div>
 
 
-    <!-- BÖLÜM 2: TARGET ARCHITECTURE -->
-    <h2>BÖLÜM 2: Hedef Kurumsal Mimari (Ideal Production)</h2>
-    <p>Nükleer santral veya metro inşaatları gibi 10.000'den fazla personelin aynı anda veri girdiği "Production" ortamı için tasarlanan, <code>yeni.pdf</code> dokümanında detaylandırılan nihai kurumsal mimaridir.</p>
+    <!-- ========================================================== -->
+    <!-- BÖLÜM 2: HEDEF KURUMSAL MİMARİ (TARGET ARCHITECTURE) -->
+    <!-- ========================================================== -->
+    <h2 style="margin-top:60px;">BÖLÜM 2: Hedef Kurumsal Mimari (Ideal Production)</h2>
+    <p>Nükleer santral veya metro inşaatları gibi 10.000'den fazla personelin aynı anda veri girdiği canlı "Production" ortamı için tasarlanan nihai kurumsal vizyondur.</p>
 
     <div class="callout-warning callout">
         <strong>Kurumsal Mimari Teknolojileri: Neden Değişiyor?</strong><br>
         Prototipte kullandığımız PHP/Vue/SQLite üçlüsü yerini kurumsal düzeyde ölçeklenebilir yapılara bırakır:
         <ul class="feature-list mt-3">
-            <li><strong>Backend (.NET Core 8 & C#):</strong> Milyonlarca transaction'ı asenkron yönetmek ve kurumsal ERP sistemleriyle tam entegrasyon için.</li>
-            <li><strong>Veritabanı (PostgreSQL):</strong> WBS (İş Kırılım Yapısı) ağaçlarını Recursive sorgularla hızlı çözmek için.</li>
-            <li><strong>Mobil Uygulama (React Native):</strong> Tarayıcı PWA yerine, %100 çevrimdışı ve native donanım (Kamera/GPS) erişimi olan mobil çözümler.</li>
+            <li><strong>Backend (.NET Core 8 & C#):</strong> Milyonlarca transaction'ı asenkron yönetmek ve kurumsal ERP (SAP) sistemleriyle tam entegrasyon için.</li>
+            <li><strong>Veritabanı (PostgreSQL):</strong> WBS (İş Kırılım Yapısı) ağaçlarını Recursive CTE sorgularla hızlı çözmek için.</li>
+            <li><strong>Frontend (React.js / Next.js):</strong> Binlerce ZZZ kodunu DataGrid üzerinde Virtualization ile hızlı render etmek için.</li>
+            <li><strong>Mobil Uygulama (React Native):</strong> Tarayıcı (PWA) yerine, %100 çevrimdışı ve native donanım (Kamera/GPS) erişimi olan mobil çözümler için.</li>
             <li><strong>Message Broker (RabbitMQ):</strong> Onay süreçlerinin (Workflow) sistemi kilitlemesini önlemek ve olay tabanlı (Event-Driven) çalışmak için.</li>
+            <li><strong>Dağıtım (Docker On-Premise):</strong> Güvenlik regülasyonları (Air-Gapped) gereği verinin iç ağda izole tutulması için.</li>
         </ul>
     </div>
 
     <h3>Kurumsal Mimari (DDD) Veritabanı Şeması</h3>
-    <p>Hedef mimaride Domain-Driven Design (DDD) kullanılarak, MVP'deki tek <code>tasks</code> tablosu gerçek kurumsal yapıdaki gibi mantıksal parçalara (WBS, T-1 Planı, T0 Gerçekleşen) bölünür.</p>
+    <p>Hedef mimaride Domain-Driven Design (DDD) kullanılarak, MVP'deki tek <code>tasks</code> tablosu gerçek kurumsal yapıdaki gibi tamamen normalleştirilmiş alt mantıksal parçalara (WBS, T-1 Planı, T0 Gerçekleşen) bölünür.</p>
 
     <div class="schema-container">
         <!-- WBS Table -->
         <div class="db-table">
             <div class="db-header target">
                 <span>wbs_items</span>
-                <span style="font-size: 0.8rem; opacity: 0.8;">İş Paketleri</span>
+                <span style="font-size: 0.8rem; opacity: 0.8;">İş Paketleri Dizini</span>
             </div>
             <div class="db-row"><span class="pk">zzz_code (PK)</span> <span class="type">string</span></div>
             <div class="db-row"><span>tow_code</span> <span class="type">string</span></div>
@@ -312,24 +417,26 @@
         <div class="db-table">
             <div class="db-header target">
                 <span>daily_plans</span>
-                <span style="font-size: 0.8rem; opacity: 0.8;">T-1 Planlama</span>
+                <span style="font-size: 0.8rem; opacity: 0.8;">T-1 Planlama Tablosu</span>
             </div>
             <div class="db-row"><span class="pk">id (PK)</span> <span class="type">integer</span></div>
             <div class="db-row"><span class="fk">zzz_code (FK)</span> <span class="type">string</span></div>
             <div class="db-row"><span class="fk">assigned_hom (FK)</span> <span class="type">integer</span></div>
             <div class="db-row"><span>planned_qty</span> <span class="type">decimal</span></div>
+            <div class="db-row"><span>planned_manday</span> <span class="type">integer</span></div>
         </div>
 
         <!-- Daily Facts Table -->
         <div class="db-table">
             <div class="db-header target">
                 <span>daily_facts</span>
-                <span style="font-size: 0.8rem; opacity: 0.8;">T0 Gerçekleşen</span>
+                <span style="font-size: 0.8rem; opacity: 0.8;">T0 Sahada Gerçekleşen</span>
             </div>
             <div class="db-row"><span class="pk">id (PK)</span> <span class="type">integer</span></div>
             <div class="db-row"><span class="fk">plan_id (FK)</span> <span class="type">integer</span></div>
             <div class="db-row"><span>fact_qty</span> <span class="type">decimal</span></div>
-            <div class="db-row"><span>comment</span> <span class="type">text (-1)</span></div>
+            <div class="db-row"><span>fact_manday</span> <span class="type">integer</span></div>
+            <div class="db-row"><span>comment (-1 Mazeret)</span> <span class="type">text</span></div>
         </div>
     </div>
 
